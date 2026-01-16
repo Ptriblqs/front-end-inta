@@ -193,6 +193,9 @@ class _DokumenMahasiswaPageState extends State<DokumenMahasiswaPage>
                   itemBuilder: (context, index) {
                     final d = controller.dokumenList[index];
 
+                    String filePath = d["file_path"] ?? "";
+                    String fileName = filePath.split('/').last;
+
                     return Container(
                       margin: const EdgeInsets.only(bottom: 16),
                       padding: const EdgeInsets.all(16),
@@ -248,7 +251,7 @@ class _DokumenMahasiswaPageState extends State<DokumenMahasiswaPage>
                                   try {
                                     await DokumenService.downloadDokumen(
                                       id: int.parse(d["id"].toString()),
-                                      savePath: d["judul"] ?? "dokumen",
+                                      fileName: fileName,
                                     );
 
                                     Get.snackbar(

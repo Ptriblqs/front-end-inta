@@ -12,7 +12,7 @@ class PengumumanService {
       );
 
       print('📡 API Response Status: ${response.statusCode}');
-      print('📡 API Response Body: ${response.body}'); // Debug
+      print('📡 API Response Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
@@ -22,8 +22,9 @@ class PengumumanService {
           
           // Debug: print setiap item
           for (var item in list) {
-            print('Item: ${item['judul']}');
-            print('Attachment: ${item['attachment']}');
+            print('✅ Item: ${item['judul']}');
+            print('   Attachment: ${item['attachment']}');
+            print('   Attachment Name: ${item['attachment_name']}'); // ← TAMBAHKAN LOG INI
           }
           
           return list;

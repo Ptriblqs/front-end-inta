@@ -119,44 +119,61 @@ class _FormAjuanDospemPageState extends State<FormAjuanDospemPage> {
 
   /// 🔥 DOWNLOAD + OPEN FILE
   Future<void> _downloadPortofolio() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
 
-      if (token == null) {
-        Get.snackbar('Error', 'Token tidak ditemukan');
-        return;
-      }
-
-      Get.dialog(
-        const Center(child: CircularProgressIndicator()),
-        barrierDismissible: false,
-      );
-
-      final url =
-          "${ApiConfig.baseUrl}/ajuan-dospem/${widget.ajuanId}/download";
-
-      final fileName =
-          ajuanData!['portofolio'].toString().split('/').last;
-
-      await FileDownloadService.downloadAndOpen(
-        url: url,
-        fileName: fileName,
-        token: token,
-      );
-
-       Get.back();
-    } catch (e) {
-      Get.back();
-      Get.snackbar(
-        'Error',
-        'Gagal download file: $e',
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+    if (token == null) {
+      Get.snackbar('Error', 'Token tidak ditemukan');
+      return;
     }
+
+    if (ajuanData == null || ajuanData!['portofolio'] == null) {
+      Get.snackbar('Error', 'Portofolio tidak tersedia');
+      return;
+    }
+
+    // Tampilkan loading
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    // URL backend download portofolio
+    final url =
+        "${ApiConfig.baseUrl}/ajuan-dospem/${widget.ajuanId}/download";
+
+    // Nama file lengkap dengan ekstensi
+    final fileName =
+        ajuanData!['portofolio'].toString().split('/').last;
+
+    // Pakai FileDownloadService untuk download + open
+    await FileDownloadService.downloadAndOpen(
+      url: url,
+      fileName: fileName,
+      token: token,
+    );
+
+    Get.back(); // tutup loading
+
+    Get.snackbar(
+      'Berhasil',
+      'Portofolio dibuka',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    Get.back(); // tutup loading
+    Get.snackbar(
+      'Gagal',
+      'Gagal membuka portofolio: $e',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
   }
+}
 
   Future<void> _handleTerima() async {
     final confirm = await Get.dialog<bool>(
@@ -522,61 +539,53 @@ class _FormAjuanDospemPageState extends State<FormAjuanDospemPage> {
 }
 
   Widget _buildFileField(String label, String fileName) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Colors.black87,
-            ),
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.black87,
           ),
-          const SizedBox(height: 6),
-          GestureDetector(
-            onTap: () {
-              Get.snackbar(
-                "Download",
-                "File $fileName",
-                backgroundColor: Colors.green,
-                colorText: Colors.white,
-                snackPosition: SnackPosition.TOP,
-              );
-            },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.download, color: primaryColor),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      fileName,
-                      style: const TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 15,
-                        color: Colors.black87,
-                        fontWeight: FontWeight.w500,
-                      ),
+        ),
+        const SizedBox(height: 6),
+        GestureDetector(
+          onTap: _downloadPortofolio, // <-- penting, panggil method download
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.download, color: primaryColor),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    fileName.isNotEmpty ? fileName : "Tidak ada file",
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 15,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildStatusBadge(String status) {
     Color bgColor;

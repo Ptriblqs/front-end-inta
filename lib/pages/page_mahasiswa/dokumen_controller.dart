@@ -3,7 +3,8 @@ import '../../services/dokumen_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:flutter/foundation.dart';
-
+import 'package:url_launcher/url_launcher.dart';
+import '../../services/api_config.dart';
 
 class DokumenModel {
   int? id;
@@ -153,20 +154,39 @@ class DokumenController extends GetxController {
   }
 
   Future<void> downloadDokumen(DokumenModel d) async {
-    if (d.id == null) return;
-    try {
-      if (kIsWeb) {
-        // On web, savePath is used as filename
-        await DokumenService.downloadDokumen(id: d.id!, savePath: d.fileName);
-        Get.snackbar('Berhasil', 'File diunduh');
-      } else {
-        final dir = await getTemporaryDirectory();
-        final savePath = '${dir.path}/${d.fileName}';
-        await DokumenService.downloadDokumen(id: d.id!, savePath: savePath);
-        await OpenFilex.open(savePath);
-      }
-    } catch (e) {
-      Get.snackbar('Gagal', 'Gagal mengunduh file: $e');
+  if (d.fileName.isEmpty) {
+    Get.snackbar('Error', 'File tidak tersedia');
+    return;
+  }
+
+  try {
+    if (kIsWeb) {
+      // WEB: browser memang download
+      final url = '${ApiConfig.baseUrl}/storage/dokumen/${d.fileName}';
+      await launchUrl(Uri.parse(url));
+      return;
     }
+
+    // MOBILE / DESKTOP
+    final dir = await getApplicationDocumentsDirectory();
+    final savePath = '${dir.path}/${d.fileName}';
+
+    await DokumenService.downloadDokumen(
+      id: d.id!,
+    fileName: d.fileName,   
+ );
+
+    // 🔥 INI YANG BIKIN WORD / PDF KEBUKA
+    await OpenFilex.open(savePath);
+
+  } catch (e) {
+    Get.snackbar(
+      'Gagal',
+      'Tidak bisa membuka dokumen',
+      snackPosition: SnackPosition.TOP,
+    );
   }
 }
+}
+
+

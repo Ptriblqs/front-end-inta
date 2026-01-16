@@ -60,12 +60,16 @@ class _JadwalDosenPageState extends State<JadwalDosenPage> {
     }
   }
 
- void _showDetailModal(Map<String, dynamic> item) {
+void _showDetailModal(Map<String, dynamic> item) {
   final TextEditingController alasanController = TextEditingController();
 
-  // ===== Logika untuk bedakan pengaju =====
-  // Jika mahasiswa_id ada, berarti ini ajuan dari mahasiswa ke dosen
-  final bool isFromMahasiswa = item['mahasiswa_id'] != null;
+  // ===== Tentukan pengaju =====
+  final String pengaju = (item['pengaju'] ?? '').toString().toLowerCase();
+  final bool isFromMahasiswa = pengaju == 'mahasiswa';
+
+  // ===== Status menunggu =====
+  final String status = (item['status'] ?? '').toString().toLowerCase();
+  final bool isPending = status == 'menunggu';
 
   showModalBottomSheet(
     context: context,
@@ -128,8 +132,8 @@ class _JadwalDosenPageState extends State<JadwalDosenPage> {
                     _buildDetailField("Catatan", item['catatan']),
                   const SizedBox(height: 30),
 
-                  // ===== Tombol hanya untuk ajuan mahasiswa =====
-                  if ((item['status'] == 'Menunggu') && isFromMahasiswa) ...[
+                  // ===== Tombol hanya muncul untuk ajuan mahasiswa menunggu =====
+                  if (isPending && isFromMahasiswa) ...[
                     Row(
                       children: [
                         Expanded(
@@ -195,6 +199,7 @@ class _JadwalDosenPageState extends State<JadwalDosenPage> {
     },
   );
 }
+
 
 
 

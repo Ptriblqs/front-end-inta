@@ -15,6 +15,7 @@ class BelumDapatDosenWidget extends StatelessWidget {
       program_studi: "-",
       kuota: 0,
       fotoProfil: "",
+      bidang_keahlian: "-",
       prodi: "-",                   // field baru
       bimbingan: "0 dari 0 Mahasiswa", // field baru
       jumlahBimbingan: 0,           // field baru

@@ -208,7 +208,7 @@ class _AjukanDosenPageState extends State<AjukanDosenPage> {
       Get.snackbar(
         "Peringatan",
         "Semua field wajib diisi",
-        backgroundColor: Colors.orange,
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return false;
@@ -218,7 +218,7 @@ class _AjukanDosenPageState extends State<AjukanDosenPage> {
       Get.snackbar(
         "Peringatan",
         "Portofolio wajib diupload",
-        backgroundColor: Colors.orange,
+        backgroundColor: Colors.red,
         colorText: Colors.white,
       );
       return false;

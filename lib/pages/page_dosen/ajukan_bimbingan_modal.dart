@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:inta301/shared/shared.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/services.dart';
+
 
 /// Modal ajukan bimbingan yang meniru tampilan dan validasi di `jadwal_pages.dart`.
 void showAjukanBimbinganModal({
@@ -73,14 +75,13 @@ void showAjukanBimbinganModal({
                       const SizedBox(height: 12),
 
                   // Judul
-_buildLabel('Judul'),
-const SizedBox(height: 6),
-TextField(
-  controller: judulCtrl,
-  decoration: _fieldDecoration(),
-),
-const SizedBox(height: 12),
-
+                    _buildLabel('Judul'),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: judulCtrl,
+                      decoration: _fieldDecoration(),
+                    ),
+                    const SizedBox(height: 12),
 
                       // Tanggal
                       _buildLabel('Tanggal'),
@@ -137,7 +138,7 @@ const SizedBox(height: 12),
                       const SizedBox(height: 6),
                       TextField(
                         controller: waktuCtrl,
-                        keyboardType: TextInputType.datetime,
+                        keyboardType: TextInputType.text,
                         decoration: _fieldDecoration(),
                       ),
                       const SizedBox(height: 12),

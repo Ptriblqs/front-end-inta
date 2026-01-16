@@ -78,7 +78,7 @@ class _ProfileDosenPageState extends State<ProfileDosenPage> {
                             child: fotoUrl != null && fotoUrl!.isNotEmpty
                                 ? ClipOval(
                                     child: Image.network(
-                                      fotoUrl!,
+                                      "$fotoUrl?${DateTime.now().millisecondsSinceEpoch}",
                                       width: 90,
                                       height: 90,
                                       fit: BoxFit.cover,

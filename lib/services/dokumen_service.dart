@@ -7,6 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'api_config.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:open_filex/open_filex.dart';
 
 // Conditional helper: uses dart:html on web, dart:io on other platforms
 import 'download_file_io.dart' if (dart.library.html) 'download_file_web.dart';
@@ -115,6 +118,21 @@ class DokumenService {
 
     throw Exception('Upload dokumen gagal');
   }
+
+static Future<void> openDokumen(Map<String, dynamic> dokumen) async {
+  final String filePath = dokumen['file_path'];
+  final String url = '$baseUrl/storage/$filePath';
+
+  final uri = Uri.parse(url);
+
+  if (!await launchUrl(
+    uri,
+    mode: LaunchMode.externalApplication,
+  )) {
+    throw Exception('Gagal membuka dokumen');
+  }
+}
+
 
   /// UPLOAD revisi dokumen
   static Future<Map<String, dynamic>> uploadRevisi({
@@ -243,26 +261,30 @@ class DokumenService {
   }
 
   /// DOWNLOAD dokumen (uses authenticated fetch on both web & IO)
-  static Future<bool> downloadDokumen({
-    required int id,
-    required String savePath,
-  }) async {
-    final url = '$baseUrl/dokumen/$id/download';
-    final token = await _getToken();
-    // Debug logging for troubleshooting
-    debugPrint('DownloadDokumen -> url: $url');
-    debugPrint('DownloadDokumen -> token present: ${token != null}');
+static Future<void> downloadDokumen({
+  required int id,
+  required String fileName,
+}) async {
+  final token = await _getToken();
+  final url = '$baseUrl/dokumen/$id/download';
 
-    // On web, `savePath` is treated as filename; on IO it's full path.
-    try {
-      await downloadFileAuthenticated(url, savePath, token: token);
-    } catch (e) {
-      debugPrint('DownloadDokumen failed: $e');
-      rethrow;
-    }
-    return true;
+  final dir = await getTemporaryDirectory();
+  final savePath = '${dir.path}/$fileName';
+
+  final dio = Dio();
+  if (token != null) {
+    dio.options.headers['Authorization'] = 'Bearer $token';
   }
 
+  debugPrint('Downloading file -> $url to $savePath');
+
+  await dio.download(url, savePath);
+
+  // buka file di aplikasi terkait
+  final result = await OpenFilex.open(savePath);
+  debugPrint('OpenFilex result: ${result.message}');
+}
+  
  /// 🔥 Get list mahasiswa bimbingan dosen
 static Future<List<dynamic>> getMahasiswaList() async {
   final response = await http.get(

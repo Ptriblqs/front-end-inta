@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:inta301/services/api_config.dart';
 import 'package:intl/intl.dart';
+import 'package:inta301/services/pengumuman_service.dart';
 
 // Import global
 import 'package:inta301/shared/shared.dart';
@@ -48,13 +49,41 @@ Future<Map<String, dynamic>> _fetchDosenHomeStats() async {
   };
 }
 
-class HomeDosenPage extends GetView<myCtrl.MenuDosenController> {
+class HomeDosenPage extends StatefulWidget {
   const HomeDosenPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    const mainBlue = Color(0xFF88BDF2);
+  State<HomeDosenPage> createState() => _HomeDosenPageState();
+}
 
+class _HomeDosenPageState extends State<HomeDosenPage> {
+  final controller = Get.find<myCtrl.MenuDosenController>();
+  final PengumumanService _pengumumanService = PengumumanService();
+
+  bool isLoadingPengumuman = true;
+  List<Map<String, dynamic>> pengumumanList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPengumuman();
+  }
+
+  Future<void> _loadPengumuman() async {
+  try {
+    final data = await _pengumumanService.getPengumuman();
+    setState(() {
+      pengumumanList = List<Map<String, dynamic>>.from(data);
+      isLoadingPengumuman = false;
+    });
+  } catch (e) {
+    debugPrint('Error pengumuman dosen: $e');
+    setState(() => isLoadingPengumuman = false);
+  }
+}
+
+  @override
+  Widget build(BuildContext context) {
     // 🔧 solusi aman: panggil setelah build selesai
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.setPage(myCtrl.PageTypeDosen.home);
@@ -196,35 +225,32 @@ class HomeDosenPage extends GetView<myCtrl.MenuDosenController> {
                       ),
                       const SizedBox(height: 30),
 
-                      // ================= Alur Pendaftaran TA =================
+                     // ================= PENGUMUMAN =================
                       const Text(
-                        "Lihat Alur Pendaftaran Tugas Akhir",
+                        "Pengumuman",
                         style: TextStyle(
-                          color: Colors.black,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 10),
 
-                      // Ubah dari ListView horizontal ke Row + Expanded
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: _InfoCard(
-                              title: "Buku Panduan",
-                              color: mainBlue,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _InfoCard(
-                              title: "Jadwal Sidang",
-                              color: mainBlue,
-                            ),
-                          ),
-                        ],
+                      SizedBox(
+                        height: 160,
+                        child: isLoadingPengumuman
+                            ? const Center(child: CircularProgressIndicator())
+                            : pengumumanList.isEmpty
+                                ? const Center(child: Text("Belum ada pengumuman"))
+                                : ListView.separated(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: pengumumanList.length,
+                                    separatorBuilder: (_, __) => const SizedBox(width: 12),
+                                    itemBuilder: (context, index) {
+                                      return _PengumumanCard(
+                                        data: pengumumanList[index],
+                                      );
+                                    },
+                                  ),
                       ),
 
                       const SizedBox(height: 25),
@@ -380,6 +406,64 @@ class HomeDosenPage extends GetView<myCtrl.MenuDosenController> {
 }
 
 // ================== COMPONENTS ==================
+class _PengumumanCard extends StatelessWidget {
+  final Map<String, dynamic> data;
+
+  const _PengumumanCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 160,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            data['judul'] ?? '-',
+            textAlign: TextAlign.center,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              color: dangerColor,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Get.toNamed(
+                Routes.DETAIL_PENGUMUMAN,
+                arguments: data,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF88BDF2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            child: const Text(
+              "Lihat",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _StatCard extends StatelessWidget {
   final String title;
   final String count;

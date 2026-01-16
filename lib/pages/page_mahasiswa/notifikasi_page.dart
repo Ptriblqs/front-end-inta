@@ -98,7 +98,7 @@ class _NotifikasiPageState extends State<NotifikasiPage> {
         Get.snackbar(
           'Berhasil',
           result['message'] ?? 'Semua notifikasi berhasil dihapus',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.green,
           colorText: Colors.white,
           margin: const EdgeInsets.all(16),
@@ -108,7 +108,7 @@ class _NotifikasiPageState extends State<NotifikasiPage> {
         Get.snackbar(
           'Gagal',
           result['message'] ?? 'Gagal menghapus notifikasi',
-          snackPosition: SnackPosition.BOTTOM,
+          snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.red,
           colorText: Colors.white,
           margin: const EdgeInsets.all(16),
@@ -216,9 +216,9 @@ class _NotifikasiPageState extends State<NotifikasiPage> {
                             n['read'] = true;
                           }
                         });
-                        Get.snackbar('Berhasil', res['message'] ?? 'Semua notifikasi ditandai terbaca', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.green, colorText: Colors.white, margin: const EdgeInsets.all(16), duration: const Duration(seconds: 2));
+                        Get.snackbar('Berhasil', res['message'] ?? 'Semua notifikasi ditandai terbaca', snackPosition: SnackPosition.TOP, backgroundColor: Colors.green, colorText: Colors.white, margin: const EdgeInsets.all(16), duration: const Duration(seconds: 2));
                       } else {
-                        Get.snackbar('Gagal', res['message'] ?? 'Gagal menandai semua notifikasi', snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.red, colorText: Colors.white, margin: const EdgeInsets.all(16), duration: const Duration(seconds: 2));
+                        Get.snackbar('Gagal', res['message'] ?? 'Gagal menandai semua notifikasi', snackPosition: SnackPosition.TOP, backgroundColor: Colors.red, colorText: Colors.white, margin: const EdgeInsets.all(16), duration: const Duration(seconds: 2));
                       }
                     });
                   }

@@ -432,6 +432,12 @@ decoration: BoxDecoration(
           ),
           ElevatedButton(
             onPressed: () {
+              print('🚀 Navigating to detail with data:');
+              print('   Judul: ${data['judul']}');
+              print('   Isi: ${data['isi']}');
+              print('   Attachment: ${data['attachment']}');
+              print('   Attachment Name: ${data['attachment_name']}'); // ← CEK INI
+              print('   Full Data: $data');
               Get.toNamed(
                 Routes.DETAIL_PENGUMUMAN,
                 arguments: data,
